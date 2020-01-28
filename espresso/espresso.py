@@ -33,8 +33,11 @@ import pexpect
 from ase.calculators.calculator import FileIOCalculator
 from ase.units import Hartree, Rydberg, Bohr
 
-from .utils import speciestuple, num2str, bool2str, convert_constraints
-from .siteconfig import SiteConfig, preserve_cwd
+#  from .utils import speciestuple, num2str, bool2str, convert_constraints
+#  from .siteconfig import SiteConfig, preserve_cwd
+
+from utils import speciestuple, num2str, bool2str, convert_constraints
+from siteconfig import SiteConfig, preserve_cwd
 
 __version__ = '0.3.3'
 
@@ -968,13 +971,16 @@ class Espresso(FileIOCalculator, object):
 
                 command = self.site.get_proc_mpi_command(self.scratch,
                                 'pw.x ' + self.parflags + ' -in pw.inp')
+                print(30 * "*")
+                print(command)
+                print(30 * "*")
 
                 if self.ion_dynamics == 'ase3':
                     raise ValueError('use interactive version <iEspresso> for ion_dynamics="ase3"')
                 else:
                     with open(self.log, 'ab') as flog:
                         flog.write(self.get_output_header().encode('utf-8'))
-                        exitcode = subprocess.call(command, stdout=flog)
+                        exitcode = subprocess.call(command, stdout=flog, shell=True)
                     if exitcode != 0:
                         raise RuntimeError('something went wrong:', exitcode)
 
@@ -3518,6 +3524,13 @@ class iEspresso(Espresso):
 
             cmd = self.site.get_host_mpi_command('cp -u {0:s} {1:s}'.format(
                 str(self.localtmp.joinpath('pw.inp')), self.scratch))
+
+            # COMBAK
+            print(40 * "-")
+            print(40 * "first cmd in run()")
+            print("cmd:", cmd)
+            print(40 * "-")
+
             subprocess.call(cmd)
 
             if self.calculation != 'hund':

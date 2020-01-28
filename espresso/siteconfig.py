@@ -186,7 +186,11 @@ class SiteConfig(with_metaclass(Singleton, object)):
         self.set_global_scratch()
 
         self.jobid = os.getenv('SLURM_JOB_ID')
-        self.submitdir = Path(os.getenv('SUBMITDIR'))
+
+        try:
+            self.submitdir = Path(os.getenv('SUBMITDIR'))
+        except:
+            self.submitdir = Path(os.getenv('SLURM_SUBMIT_DIR'))
 
         self.nnodes = int(os.getenv('SLURM_JOB_NUM_NODES'))
         self.tpn = int(os.getenv('SLURM_TASKS_PER_NODE').split('(')[0])
@@ -254,7 +258,12 @@ class SiteConfig(with_metaclass(Singleton, object)):
         with working_directory(str(self.localtmp)):
             if self.batchmode:
                 cmd = self.get_host_mpi_command('mkdir -p {}'.format(str(self.user_scratch)))
-                call(cmd)
+                print("ijsdifsdifsdifjisjdf8isdojpi0")
+                print("call:")
+                print(cmd)
+                print("ijsdifsdifsdifjisjdf8isdojpi0")
+
+                call(cmd, shell=True)
             else:
                 self.user_scratch.makedirs_p()
 
@@ -273,6 +282,10 @@ class SiteConfig(with_metaclass(Singleton, object)):
         command = 'mpirun -host {} '.format(','.join(self.nodelist)) +\
                   '-np {0:d} {1:s}'.format(self.nnodes, program)
 
+        # MY CHANGES
+        #  command = '/usr/bin/mpiexec.slurm -host {} '.format(','.join(self.nodelist)) +\
+        #            '-np {0:d} {1:s}'.format(self.nnodes, program)
+
         if aslist:
             return shlex.split(command)
         else:
@@ -288,6 +301,10 @@ class SiteConfig(with_metaclass(Singleton, object)):
             # should be logged print('Using hostfile',self.get_hostfile())
         else:
             command = 'mpirun -wdir {0:s} {1:s}'.format(workdir, program)
+
+            # MY CHANGES
+            # command = '/usr/bin/mpiexec.slurm -wdir {0:s} {1:s}'.format(workdir, program)
+
             # should be logged print('Not Using hostfile', self.get_hostfile())
 
         if aslist:
